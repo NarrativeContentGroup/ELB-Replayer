@@ -4,6 +4,7 @@ import sys
 
 import dateutil.parser
 import requests
+from urlparse import urlparse
 
 from twisted.internet import task
 from twisted.internet import reactor
@@ -27,9 +28,15 @@ def main():
         bits = line.split()
         timestamp = dateutil.parser.parse(bits[0])
         method = bits[11].lstrip('"')
-        url = bits[12]
+        url = urlparse(bits[12])
         if method != 'GET':
             continue
+        request_path = 'http://{}{}{}'.format(
+            script_args.host,
+            url.path,
+            url.query
+        )
+
 
 if __name__ == "__main__":
     main()
