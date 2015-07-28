@@ -2,6 +2,7 @@
 import argparse
 import sys
 
+import dateutil.parser
 import requests
 
 from twisted.internet import task
@@ -24,7 +25,7 @@ def replay_request(url):
 def main():
     for line in open(script_args.logfile):
         bits = line.split()
-        timestamp = bits[0]
+        timestamp = dateutil.parser.parse(bits[0])
         method = bits[11].lstrip('"')
         url = bits[12]
         if method != 'GET':
