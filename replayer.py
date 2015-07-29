@@ -13,15 +13,25 @@ description='ELB Log Replayer (ELR)'
 
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument('logfile', help='the logfile to replay')
-parser.add_argument('--host',
-                    help='host to send requests',
-                    default='localhost',
-                )
+parser.add_argument(
+    '--host',
+    help='host to send requests',
+    default='localhost',
+)
+parser.add_argument(
+    '--dry-run',
+    action='store_true',
+    help='don\'t actually hit the `host`',
+)
 
 script_args = parser.parse_args()
 
 def replay_request(url):
-    requests.get(url)
+    if script_args.dry_run:
+        sys.stdout.write('{}\n'.format(url))
+    else:
+        requests.get(url)
+
 
 def main():
     for line in open(script_args.logfile):
@@ -36,7 +46,7 @@ def main():
             url.path,
             url.query
         )
-
+        replay_request(request_path)
 
 if __name__ == "__main__":
     main()
