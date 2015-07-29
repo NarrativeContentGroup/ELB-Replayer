@@ -32,7 +32,6 @@ def replay_request(url):
     else:
         requests.get(url)
 
-
 def main():
     for line in open(script_args.logfile):
         bits = line.split()
@@ -46,7 +45,9 @@ def main():
             url.path,
             url.query
         )
-        replay_request(request_path)
+        reactor.callLater(1, replay_request, request_path)
+    reactor.callLater(4, reactor.stop)
+    reactor.run()
 
 if __name__ == "__main__":
     main()
