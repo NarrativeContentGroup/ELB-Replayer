@@ -33,9 +33,16 @@ def replay_request(url):
         requests.get(url)
 
 def main():
+    starting = None
     for line in open(script_args.logfile):
         bits = line.split()
         timestamp = dateutil.parser.parse(bits[0])
+        if not starting:
+            starting=timestamp
+        offset = timestamp - starting
+        if offset.total_seconds() < 0:
+            # ignore past requests
+            continue
         method = bits[11].lstrip('"')
         url = urlparse(bits[12])
         if method != 'GET':
@@ -45,8 +52,9 @@ def main():
             url.path,
             url.query
         )
-        reactor.callLater(1, replay_request, request_path)
-    reactor.callLater(4, reactor.stop)
+        reactor.callLater(offset.total_seconds(), replay_request, request_path)
+
+    reactor.callLater(offset.total_seconds() + 4, reactor.stop)
     reactor.run()
 
 if __name__ == "__main__":
